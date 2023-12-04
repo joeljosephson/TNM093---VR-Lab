@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+
+H3DStiffnessSurfaceNode - Base class for surfaces with stiffness and damping
+MagneticSurface - the proxy is attracted to the surface
+MultiDeviceSurface - different surfaces for different haptic devices
+
+
+-->
+
+
+
+<!--  Needed in VR-LAB -->
+
+
+<!--
+Copyright 2013, 2017, Karljohan Lundin Palmerius
+
+This is a stubb for laborations on multi-modal display
+systems in the VR laboratory. It will disable the X3D
+navigation to allow for viewpoint calibration and tracking,
+and load libraries commonly used in the VR laboratory.
+-->
+
+<!-- 
+
+Task 5: The scene looks good close to the viewpoint and wack far away
+
+Task 6: Should in theory look better from weird angles
+
+Task 7: Headtracking - the chair becomes distorted and looks more like a bench,
+		Navigation - the chair rotates without becoming distorted
+
+Task 8: Shadow on - the chair is clearly in front of the background with some distance.
+		Shadow off - the chair appears to be right in front of the background with no distance.
+
+Task 9: With the stereoscopic rendering off you lose the 3D affect
+
+Task 10: Without the texture the chair seems further away from the plane. The texture helps with the feeling of depth in the scene
+
+Task 11: Stereo - makes it feel like you're moving inside the scene
+		 Mono - makes it feel like the scene is moving in regards to you
+		 Stereoscopic turned on - more motion blur.
+
+Task 13: Höger/vänster är tydligt men över/under/framför/bakom är lite otydiligt.
+
+Task 15: Easier to hear the different distance of sound at larger distance compared to shorter.
+
+Task 18: Higher stiffness - More force needed to penetrate
+         Lower damping - Feels like a harder surface both when pressing and tapping.
+
+
+Task 19: Plastic: Quite realistic, but could be confused with something else hard and smooth (metal?. <FrictionalSurface useRelativeValues="false" stiffness="1350" damping="0" staticFriction="0" dynamicFriction="0"/>
+		 Rubber: Realistic, should be possible to identify correctly. <FrictionalSurface useRelativeValues="false" stiffness="800" damping="4" staticFriction="1.5" dynamicFriction="1.5"/>
+		 Wood: Could be confused with rough plastic. <FrictionalSurface useRelativeValues="false" stiffness="1300" damping="0.2" staticFriction="0.2" dynamicFriction="0.3"/>
+		 
+-->
+ 
+<Group DEF = "CHAIR">
+<Inline def="vus" url="urn:candy:x3d/view-untracked-stereo.x3d"/> 
+<!-- <Inline def="vum" url="urn:candy:x3d/view-untracked-mono.x3d"/> -->
+
+<!-- <Inline def="vhts" url="urn:candy:x3d/view-head-tracked-stereo.x3d"/> -->
+<!-- <Inline def="vhtm" url="urn:candy:x3d/view-head-tracked-mono.x3d"/> -->
+
+<Inline url="urn:candy:x3d/model_FeedbackTip.x3d"/>
+<MatrixTransform DEF="TR">
+    
+  <PythonScript url="urn:candy:python/CorrectViewpoint.py"/>
+  <PythonScript url="urn:candy:python/AutoLoadSO.py"/>
+  <PythonScript DEF="CR" url="ColorRandomizer.py" />
+  <PythonScript DEF="MFtoSF" url="urn:candy:python/MFtoSFBool.py" />
+  <PythonScript DEF="MFtoSF2" url="urn:candy:python/MFtoSFBool.py" />
+  <PythonScript DEF="MFtoSF3" url="urn:candy:python/MFtoSFBool.py" />
+  
+  <IMPORT inlineDEF="H3D_EXPORTS" exportedDEF="HDEV" AS="HDEV"/>
+
+  <!-- Put your code here -->
+   
+  <PythonScript DEF="MR" url="urn:candy:python/ManualRotation.py">
+    <Transform USE="TR" containerField="references"/>
+  </PythonScript>
+
+  <PythonScript DEF="MT" url="urn:candy:python/ManualTranslation.py">
+    <Transform USE="TR" containerField="references"/>
+  </PythonScript>
+
+<!-- SOUND -->
+  <VRSound intensity="1.0" location="0 0 0" DEF="SOUND" spatialize="TRUE" >
+    <ReverbSoundEffect parametersPreset="CHAPEL"/>
+    <AudioClip DEF="AUDIO" url="sound/ljud-bonk-2.wav" loop="FALSE"/>
+  </VRSound>
+
+  <VRSound intensity="1.0" location="100 0 0" DEF="SOUND2" spatialize="TRUE" >
+    <ReverbSoundEffect parametersPreset="PSYCHOTIC"/>
+    <AudioClip DEF="AUDIO2" url="sound/ljud-bonk-2.wav" loop="FALSE"/>
+  </VRSound>
+
+  <TimeTrigger DEF='TT' />
+  <BooleanFilter DEF='BF' />
+  
+  <TimeTrigger DEF='TT2' />
+  <BooleanFilter DEF='BF2' />
+
+  <!-- Camera -->
+  <!-- <Viewpoint position="-1 0 2"  orientation="0 1 0 -0.3"/>
+  <Viewpoint position="-2 0 4"  orientation="0 1 0 -0.3"/>
+  <Viewpoint position="1 0.7 2" orientation="-1 1 0 0.5" />
+  <Viewpoint position="2 0 0" orientation="0 1 0 1.57" />
+  <Viewpoint position="-2 0 0" orientation="0 1 0 -1.57" />
+  <Viewpoint position="0 2 0" orientation="1 0 0 -1.57" /> -->
+  <!-- 
+  <SMViewpoint position="0 0 1" screenLowerLeft="-.2655 -.1755 0" screenUpperRight=".2655 .1755 0"/>
+  <SMViewpoint position="-0.5 0 1" screenLowerLeft="-.2655 -.1755 0" screenUpperRight=".2655 .1755 0"/>
+   -->
+
+    
+<Group DEF="Light">    
+ <PointLight DEF='L'
+        location="0.2 0.2 1.5" ambientIntensity='1.0' color='1 1 0' global='true'
+        intensity='1.0' on='true' attenuation='1 0.6 0.15' /> 
+</Group>
+ 
+ <!-- Background -->
+ <Transform translation="0 0 -0.5">
+   <Shape> 
+        <Appearance shadow="true">
+		<Material diffusecolor="1 1 0"/> 
+			<Frictionalsurface userelativevalues="false" stiffness="0" damping="0" staticfriction="0" dynamicfriction="0"/> 
+			<ImageTexture url="displacementtest_diffuse.png"/>
+				<!-- Without the image the chair seems further away from the plane -->
+		</Appearance>
+		<Box def="background" size="0.5 0.5 0.1" />
+    </Shape> 
+ </Transform>
+
+
+<Transform scale="0.2 0.2 0.2">
+    <!-- Seat (rubber)-->
+  <Transform translation="0 0 0">
+    <Shape>
+      <Appearance shadow="true">
+        <Material DEF="MAT1" diffuseColor="0.15 0.1 0.05" />
+        <FrictionalSurface useRelativeValues="false" stiffness="800" damping="4" staticFriction="1.5" dynamicFriction="1.5"/>
+      </Appearance>
+      <Box DEF="Seat" size="0.5 0.05 0.4" />
+    </Shape>
+  </Transform>
+
+  <!-- Back leg (plastic) -->
+  <Transform translation="0.25 0 0">
+    <Shape>
+      <Appearance shadow="true">
+        <Material DEF="MAT2" diffuseColor="1 0.2 0.2" />
+        <FrictionalSurface useRelativeValues="false" stiffness="1350" damping="0" staticFriction="0" dynamicFriction="0"/>        <!-- <SmoothSurface stiffness="0.5" /> -->
+      </Appearance>
+      <Box DEF="Back_Leg" size="0.05 1 0.4" />
+    </Shape>
+  </Transform>
+
+  <!-- Left FLeg (wood)--> 
+  <Transform translation="-0.2 -0.25 0.15">
+    <Shape>
+      <Appearance shadow="true">
+        <Material DEF="MAT3" diffuseColor="0.4 0.3 0.3" />
+        <FrictionalSurface useRelativeValues="false" stiffness="1300" damping="0.2" staticFriction="0.2" dynamicFriction="0.3"/>
+        <!-- <SmoothSurface stiffness="0.5" /> -->
+      </Appearance>
+      <Box DEF="Left_Leg" size="0.05 0.5 0.05" />
+    </Shape>
+  </Transform>
+
+   <!-- Right FLeg (wood)--> 
+  <Transform translation="-0.2 -0.25 -0.15">
+    <Shape>
+      <Appearance  shadow="true">
+        <Material DEF="MAT4" diffuseColor="0.4 0.3 0.3" />
+        <FrictionalSurface useRelativeValues="false" stiffness="1300" damping="0.2" staticFriction="0.2" dynamicFriction="0.3"/>
+        <!-- <SmoothSurface stiffness="0.5" /> -->
+      </Appearance>
+      <Box DEF="Right_Leg" size="0.05 0.5 0.05" />
+    </Shape>
+  </Transform>
+</Transform>
+ </MatrixTransform>
+
+<!-- Change color -->
+    <!-- <ROUTE fromNode="Left_Leg" fromField="isTouched"
+         toNode="MFtoSF" toField="value" />
+    <ROUTE fromNode="MFtoSF" fromField="value"
+         toNode="CR" toField="color" />
+    <ROUTE fromNode="CR" fromField="color"
+         toNode="MAT3" toField="diffuseColor" /> -->
+
+<!-- Manual Navigation-->
+  <ROUTE fromNode="HDEV" fromField="mainButton"
+         toNode="MT" toField="button"/>
+  <ROUTE fromNode="HDEV" fromField="trackerPosition"
+         toNode="MT" toField="position"/>
+  
+  <ROUTE fromNode="HDEV" fromField="mainButton"
+         toNode="MR" toField="button"/>
+  <ROUTE fromNode="HDEV" fromField="trackerPosition"
+         toNode="MR" toField="position"/>
+  <ROUTE fromNode="HDEV" fromField="trackerOrientation"
+         toNode="MR" toField="orientation"/>
+
+
+<!-- Sound -->
+  <ROUTE fromNode="Left_Leg" fromField="isTouched"
+          toNode="MFtoSF2" toField="value" />
+  <ROUTE fromNode="MFtoSF2" fromField="value"
+         toNode="BF" toField="set_boolean" />
+  <ROUTE fromNode="BF" fromField="inputTrue"
+         toNode="TT" toField="set_boolean"/>
+  <ROUTE fromNode="TT" fromField="triggerTime"
+         toNode="AUDIO" toField="startTime"/>
+
+  <ROUTE fromNode="Back_Leg" fromField="isTouched"
+        toNode="MFtoSF3" toField="value" />
+  <ROUTE fromNode="MFtoSF3" fromField="value"
+         toNode="BF2" toField="set_boolean" />
+  <ROUTE fromNode="BF2" fromField="inputTrue"
+         toNode="TT2" toField="set_boolean"/>
+  <ROUTE fromNode="TT2" fromField="triggerTime"
+         toNode="AUDIO2" toField="startTime"/>
+
+</Group>
